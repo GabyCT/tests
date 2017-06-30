@@ -12,4 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package functional
+// Semaphore environment variables https://semaphoreci.com/docs/available-environment-variables.html
+
+package main
+
+import "os"
+
+// CI Continous Integration
+type CI interface {
+	// GetPR obtains the pull request number
+	GetPR() (*pr, error)
+}
+
+// Semaphore environment variables
+const (
+	ciEnvar   = "CI"
+	toolEnvar = "SEMAPHORE"
+)
+
+// NewCI verifies that the testing environment is using Semaphore
+func NewCI() CI {
+	ci := os.Getenv(ciEnvar)
+	semaphore := os.Getenv(toolEnvar)
+	if ci == "true" && semaphore == "true" {
+		return &SemaphoreCI{}
+	}
+	return nil
+}

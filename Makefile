@@ -21,9 +21,9 @@ TIMEOUT ?= 5
 CRIO_REPO_PATH="${GOPATH}/src/github.com/kubernetes-incubator/cri-o"
 crio:
 	bash .ci/install_bats.sh
-	ln -sf $(PWD)/integration/cri-o/crio.bats ${CRIO_REPO_PATH}/test
+	cp $(PWD)/integration/cri-o/crio.bats ${CRIO_REPO_PATH}/test/
 	cd ${CRIO_REPO_PATH} && \
-	make localintegration RUNTIME=${CC_RUNTIME} TESTFLAGS="crio.bats"
+	RUNTIME=${CC_RUNTIME} STORAGE_OPTS="--storage-driver=aufs" ./test/test_runner.sh crio.bats
 
 ginkgo:
 	ln -sf . vendor/src
@@ -33,7 +33,9 @@ ginkgo:
 functional: ginkgo
 	./ginkgo functional/ -- -runtime ${CC_RUNTIME} -timeout ${TIMEOUT}
 
-check:	functional crio
+# Add crio tests here when https://github.com/clearcontainers/runtime/issues/215
+# is fixed.
+check: functional crio
 
 all: functional checkcommits
 
